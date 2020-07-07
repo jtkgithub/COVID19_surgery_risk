@@ -1,6 +1,8 @@
 # COVID19_surgery_risk
 This repository contains R code for a modelling study of the risks related to doing surgery on asymptomatic COVID19 patients.
 
+The code is developed by Tore Selland Kleppe (tore.kleppe@uis.no).
+
 The work is documented in the manuscript "Estimating risk of admitting patients with presymptomatic SARS-CoV-2 to surgery during the 
 COVID-19 pandemic and perioperative pulmonary complications and mortality" and the supplementary material for the manuscript.
 
