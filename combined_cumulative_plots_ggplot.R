@@ -1,4 +1,8 @@
-load("Computations")
+# this script makes the plots showing cumulative curves for pulmonary complications
+# and 30-day mortality for several countries. A table is also generated giving cumulative quantiles
+# for 1 and 2 year periods.
+
+load("Computations") # loads output generated from "sim_model.R"
 library(ggplot2)
 library(gridExtra)
 
@@ -14,32 +18,35 @@ dfp <- data.frame(time=dates[start.date:length(dates)])
 
 combined.m <- 0*resCounts[, , 5,1]
 combined.p <- combined.m
-
+# table for appendix
 qtab <- matrix(0.0,6,12)
 
 
 
 for(c in 1:length(countries)){
-  pop <- (c-1)*3 + 1
+  pop <- (c-1)*3 + 1 # chooses the 15000 level of surgeries
   #30 day mortality
-  tmp <- resCounts[, , 5,pop]
+  tmp <- resCounts[, , 5,pop] # daily counts
   tmpCum <- tmp
   
-  
+  # make cumulative curves
   for (t in (start.date + 1):length(dates)) {
     tmpCum[t, ] <- tmpCum[t - 1, ] + tmp[t, ]
   }
-  
+  # quantiles for table
   qtab[c,7:9] <- quantile(tmpCum[which(dates=="2021-07-01"),],prob=c(0.05,0.5,0.95))
   qtab[c,10:12] <- quantile(tmpCum[which(dates=="2022-07-01"),],prob=c(0.05,0.5,0.95))
   
+  # add to combined
   combined.m <- combined.m + tmpCum
   
+  # daily quantiles
   for (t in start.date:length(dates)) {
     qs[, t] <- quantile(tmp[t,], probs = c(0.05, 0.5, 0.95))
     qsc[, t] <- quantile(tmpCum[t,], probs = c(0.05, 0.5, 0.95))
   }
   
+  # add quantiles to data frame to prepare for plotting
   
   tmpdf <-
     data.frame(t(qsc[, start.date:length(dates)]))
@@ -77,7 +84,7 @@ for(c in 1:length(countries)){
 
 }
 
-
+# pulmonary plot
   
 p1 <- ggplot(dfp,aes(x=time,y=AUS_median)) + 
   geom_line(lwd=1.5,color="black") +
@@ -110,6 +117,8 @@ guides(color=guide_legend(override.aes=list(fill=NA)))+
 #  theme(legend.position = "none")
 #    guides(color=guide_legend(override.aes=list(fill=NA)))+
 
+# mortality plot
+
 p2 <-  ggplot(df,aes(x=time,y=AUS_median,color="AUS")) + 
   geom_line(lwd=1.5) +
   
@@ -141,10 +150,12 @@ p2 <-  ggplot(df,aes(x=time,y=AUS_median,color="AUS")) +
 
 
 
-#p3 <- grid.arrange(p2,p1,ncol=2)
 
 ggsave("cumulative_plot.pdf",plot=arrangeGrob(p1,p2,ncol=2),width=14,height = 7)
 #legend(dates[start.date],45000,legend = c("AUS","EU27","UK","US"),col=c(4,2,1,3),lty=c(1,1,1,1),lwd=c(2,2,2,2))
+
+
+# add quantiles for the combination of countries to table
 
 print("mortality")
 qtab[6,7:9] <- quantile(combined.m[which(dates=="2021-07-01"),],prob=c(0.05,0.5,0.95))
@@ -154,9 +165,9 @@ print("pulmonary")
 qtab[6,1:3] <- quantile(combined.p[which(dates=="2021-07-01"),],prob=c(0.05,0.5,0.95))
 qtab[6,4:6] <- quantile(combined.p[which(dates=="2022-07-01"),],prob=c(0.05,0.5,0.95))
 print(qtab[,1:6])
-
+# re-arrange table
 qtab <- rbind(qtab[,1:6],qtab[,7:12])
-
+# dump table to file
 writexl::write_xlsx(as.data.frame(qtab),path="cumulative_quantiles.xlsx")
 
 

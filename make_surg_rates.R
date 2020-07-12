@@ -2,12 +2,12 @@
 
 
 
-# data from Omling et al
+# data from Omling et al, Table 1
 labs <- c("0-4","5-9","10-14","15-19","20-24","25-29","30-34",
 "35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74",
 "75-79","80-84","85-89",">=90")
 
-
+# in-patient
 inp <- matrix(c(2020 , 4030,
          1350 , 2710, 
          1500 , 2930, 
@@ -27,7 +27,7 @@ inp <- matrix(c(2020 , 4030,
          14330,24380, 
          14840,24820, 
          13670,22940),19,2,byrow = T)
-
+# out-patient
 outp <- matrix(c(4230,4100,3990,5810,6900,7900,8830,
                  9670,9680,10680,12600,14840,18120,
                  22860,27980,32240,32500,28440,18990),19,1)
@@ -81,7 +81,7 @@ f<-matrix(c(38.3,15.76,
   257.77,111.38,
   211.53,87.43),19,2,byrow = T)
 
-# "reproduce" fig 2 in Omling
+# "reproduce" fig 2 in Omling (check)
 #plot(-(f[,1]-f[,2]),19:1,xlim=c(-170,170))
 #points(f[,2],19:1)
 #lines(c(0,0),c(20,0))
@@ -243,32 +243,3 @@ colnames(pop.data)<-c("female","male")
 
 
 
-
-
-# standard populations
-# library(foreign)
-# populasjoner<-read.spss("standardpopulasjoner.sav", 
-#                         use.value.labels = FALSE, to.data.frame = TRUE)
-# 
-# 
-# # EURO population
-# f.pop <- vector(mode="numeric",length=19)
-# m.pop <- f.pop
-# for(i in 1:19) m.pop[i] <- populasjoner[1,i+1]
-# for(i in 1:19) f.pop[i] <- populasjoner[1,i+22]
-# # make population sum to 10 million = 1.0e7
-# N <- sum(f.pop)+sum(m.pop)
-# f.pop <- f.pop*(1.0e7/N)
-# m.pop <- m.pop*(1.0e7/N)
-# 
-# pop.data <- as.data.frame(cbind(f.pop,m.pop))
-# rownames(pop.data)<-labs
-# colnames(pop.data)<-c("female","male")
-# 
-# # compare swedish population and euro population
-# 
-# #plot(nn/sum(nn)*1.0e7)
-# #points(pop.data$female+pop.data$male,col="red")
-# 
-# 
-# 

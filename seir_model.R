@@ -4,13 +4,16 @@ library (deSolve)
 dates <- seq(as.Date("2020/1/1"), as.Date("2022/07/01"), by = "day")
 times <- seq(from = 1, to = length(dates))
 mar13 <- which(dates == "2020-03-13")
+
+
+# simulate a trajectory
 seir_sim <- function(R0max = 2.2,
                      soc_dist_Rfac = 0.4 ,
                      season_amplitude = 0.4,
                      upper_thresh = 35,
                      lower_thresh = 5) {
   
-  
+  # constants
   seir_upper_thresh <- upper_thresh
   seir_lower_thresh <- lower_thresh
   
@@ -29,17 +32,21 @@ seir_sim <- function(R0max = 2.2,
   
   seir_N <- 10000
   
+  # the R_0-function
   seir_R0 <- function(t) {
     tt <- t / 7.0 # Kissler et al uses weekly time scale
     return(seir_R0max * (0.5 * seir_f * cos(2 * pi / 52 * (tt - seir_phi)) +
                            (1.0 - 0.5 * seir_f)))
   }
+  # the beta-function
   seir_beta <- function(t) {
     return(seir_R0(t) * seir_gamma)
   }
   
+  # start with social distancing off
   seir_soc_dist <- FALSE
   
+  # the actual ODE used by the ODE-solver 
   seir_ode <- function(t, states, parms) {
     S <- states[1]
     E <- states[2]
@@ -54,10 +61,14 @@ seir_sim <- function(R0max = 2.2,
     RC <- states[11]
     soc_dist <- states[12]
     
+    
     betat <- seir_beta(t)
+    # social distancing on?
     if (soc_dist > 0.5)
       betat <- soc_dist_Rfac * betat
     
+    
+    # introduce infection first half week after mar 13 2020
     intro <- 0.0
     if (t >= mar13 && t < mar13 + 3.5)
       intro <- 14.2857 #0.01/7*10000
@@ -81,6 +92,7 @@ seir_sim <- function(R0max = 2.2,
     
   }
   
+  # root function for soc dist on-off
   seir_root <- function(t, states, parms) {
     IR <- states[3]
     IH <- states[4]
@@ -91,6 +103,7 @@ seir_sim <- function(R0max = 2.2,
     return(ret)
   }
   
+  # even of soc dist on-off
   seir_event <- function(t, states, parms) {
     states_new <- states
     states_new[12] <-
@@ -98,10 +111,10 @@ seir_sim <- function(R0max = 2.2,
     return(states_new)
   }
   
-  
+  # initial condition - everyone in S
   seir_initialCond <- c(seir_N, rep(0.0, 11))
   
-  seir_f <- 0.4
+  
   
   out <- lsoda(
     y = seir_initialCond,
@@ -112,6 +125,7 @@ seir_sim <- function(R0max = 2.2,
     rootfunc = seir_root
   )
   
+  # add names to return structure
   out <- as.data.frame(out)
   colnames(out) <- c("time",
                      "S",
