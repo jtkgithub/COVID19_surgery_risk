@@ -126,8 +126,3 @@ for (i in 1:nrep) {
   
 }
 save.image("Computations")
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 09747b3... improved comments

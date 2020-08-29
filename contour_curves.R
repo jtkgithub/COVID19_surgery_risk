@@ -186,6 +186,7 @@ if (T) {
     if(c==3){
       ggsave(
         "contour_plots_1.pdf",
+ #       "contour_plots_1.tiff",
         plot = do.call(arrangeGrob,
                        c(gList = plots, ncol = 3)),
         width = 7,
